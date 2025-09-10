@@ -1,0 +1,48 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "test-dynos",
+  "compatibility_date": "2025-07-18",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/index.ts",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "User",
+        "class_name": "User"
+      }
+    ]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "random-id"
+    }
+  ],
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["User"]
+    }
+  ],
+  "services": [
+    {
+      "binding": "globalOutbound",
+      "service": "test-dynos",
+      "entrypoint": "globalOutbound"
+    },
+    {
+      "binding": "GreeterLoopback",
+      "service": "test-dynos",
+      "entrypoint": "GreeterLoopback"
+    }
+  ],
+  "unsafe": {
+    "bindings": [
+      {
+        "name": "LOADER",
+        "type": "worker-loader",
+        "id": "random-id"
+      }
+    ]
+  }
+}

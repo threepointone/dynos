@@ -1,0 +1,30 @@
+{
+  "name": "dynos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite dev",
+    "types": "wrangler types env.d.ts --include-runtime false --strict-vars false"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.3",
+    "@cloudflare/vite-plugin": "^1.12.3",
+    "@cloudflare/workers-types": "^4.20250905.0",
+    "@types/node": "^24.3.1",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.4",
+    "wrangler": "^4.34.0"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}
