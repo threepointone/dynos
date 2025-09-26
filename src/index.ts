@@ -1,5 +1,18 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
 
+// inline this until enable_ctx_exports is supported by default
+declare global {
+  interface ExecutionContext<Props = unknown> {
+    readonly exports: Cloudflare.Exports;
+    readonly props: Props;
+  }
+
+  interface DurableObjectState<Props = unknown> {
+    readonly exports: Cloudflare.Exports;
+    readonly props: Props;
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(request.url);
@@ -11,6 +24,9 @@ export default {
         mainModule: "foo.js",
         modules: {
           "foo.js": `
+
+          console.log("> All of this is logged from inside an 'evaled' dynamic worker");
+          
           // import node builtins
           import util from "node:util";
           
@@ -49,6 +65,12 @@ export default {
                 const response2 = await fetch("http://example.com/sub-path");
                 console.log("response from example.com/sub-path", await response2.text());
 
+                // call exposed functions 
+
+                console.log("exposed.addNumbers(1, 2)", await env.exposed.addNumbers(1, 2));
+
+                console.log("exposed.spongeBobText('Hello, world!')", await env.exposed.spongeBobText("Hello, world!"));
+
                 return new Response('Hello from ${url.pathname}!'); 
               }
             }`,
@@ -65,17 +87,37 @@ export default {
             g: null,
             h: undefined,
           },
-          // GreeterLoopback: env.GreeterLoopback,
+          exposed: ctx.exports.ExposeSomeFunctions({
+            // you could also pass props here that will be available as this.props inside the class
+          }),
         },
+        // null blocks all outgoing fetches
+        // globalOutbound: null,
+
         globalOutbound: env.globalOutbound,
       };
     });
 
     // Now you can get its entrypoint.
     const defaultEntrypoint = worker.getEntrypoint();
+
+    // we use fetch here, but you could also just define a WorkerEntrypoint and call rpc functions on it
     return await defaultEntrypoint.fetch(request);
   },
 };
+
+export class ExposeSomeFunctions extends WorkerEntrypoint {
+  async addNumbers(a: number, b: number) {
+    return a + b;
+  }
+  async spongeBobText(text: string) {
+    let result = "";
+    for (const char of text) {
+      result += Math.random() > 0.5 ? char.toUpperCase() : char.toLowerCase();
+    }
+    return result;
+  }
+}
 
 export const globalOutbound = {
   fetch: async (
@@ -95,9 +137,3 @@ export const globalOutbound = {
     return fetch(input, init);
   },
 };
-
-export class GreeterLoopback extends WorkerEntrypoint {
-  async greet(name: string) {
-    return `${this.ctx.props.greeting}, ${name}!`;
-  }
-}

@@ -2,7 +2,11 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "test-dynos",
   "compatibility_date": "2025-07-18",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "enable_ctx_exports",
+    "experimental"
+  ],
   "main": "src/index.ts",
   "durable_objects": {
     "bindings": [
@@ -31,18 +35,14 @@
       "entrypoint": "globalOutbound"
     },
     {
-      "binding": "GreeterLoopback",
+      "binding": "ExposeSomeFunctions",
       "service": "test-dynos",
-      "entrypoint": "GreeterLoopback"
+      "entrypoint": "ExposeSomeFunctions"
     }
   ],
-  "unsafe": {
-    "bindings": [
-      {
-        "name": "LOADER",
-        "type": "worker-loader",
-        "id": "random-id"
-      }
-    ]
-  }
+  "worker_loaders": [
+    {
+      "binding": "LOADER"
+    }
+  ]
 }
