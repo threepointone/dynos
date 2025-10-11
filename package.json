@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "vite dev",
-    "types": "wrangler types env.d.ts --include-runtime false --strict-vars false"
+    "types": "wrangler types env.d.ts --include-runtime false --strict-vars false",
+    "check": "biome check && tsc"
   },
   "keywords": [],
   "author": "",
