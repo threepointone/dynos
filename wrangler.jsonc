@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "test-dynos",
-  "compatibility_date": "2025-07-18",
+  "compatibility_date": "2025-11-05",
   "compatibility_flags": ["nodejs_compat", "enable_ctx_exports"],
   "main": "src/index.ts",
   "services": [
