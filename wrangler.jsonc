@@ -6,9 +6,9 @@
   "main": "src/index.ts",
   "services": [
     {
-      "binding": "globalOutbound",
+      "binding": "GlobalOutbound",
       "service": "test-dynos",
-      "entrypoint": "globalOutbound"
+      "entrypoint": "GlobalOutbound"
     },
     {
       "binding": "ExposeSomeFunctions",

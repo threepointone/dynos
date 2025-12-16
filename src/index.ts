@@ -45,7 +45,7 @@ export default {
           console.log('imported bar', bar);
 
           // use bindings
-          import { env } from "cloudflare:workers";
+          import { env, WorkerEntrypoint } from "cloudflare:workers";
 
           // text bindings work
           console.log("env.TEXT", env.TEXT);
@@ -55,6 +55,11 @@ export default {
 
           // can call services... soon
 
+          export class SomeFunctions extends WorkerEntrypoint {
+            async multiply(a, b) {
+              return a * b;
+            }
+          }
 
           export default {
               async fetch(req) {                 
@@ -94,12 +99,21 @@ export default {
         // null blocks all outgoing fetches
         // globalOutbound: null,
 
-        globalOutbound: env.globalOutbound,
+        globalOutbound: env.GlobalOutbound,
       };
     });
 
     // Now you can get its entrypoint.
     const defaultEntrypoint = worker.getEntrypoint();
+
+    // or you can get the entrypoint for a specific class
+    const someFunctionsEntrypoint = worker.getEntrypoint("SomeFunctions");
+
+    console.log(
+      "someFunctionsEntrypoint",
+      // @ts-expect-error - we need a better way to type this
+      await someFunctionsEntrypoint.multiply(2, 3)
+    );
 
     // we use fetch here, but you could also just define a WorkerEntrypoint and call rpc functions on it
     return await defaultEntrypoint.fetch(request);
@@ -119,11 +133,11 @@ export class ExposeSomeFunctions extends WorkerEntrypoint {
   }
 }
 
-export const globalOutbound = {
-  fetch: async (
+export class GlobalOutbound extends WorkerEntrypoint {
+  async fetch(
     input: string | URL | Request,
     init?: RequestInit<CfProperties<unknown>> | undefined
-  ): Promise<Response> => {
+  ): Promise<Response> {
     const url = new URL(
       typeof input === "string"
         ? input
@@ -135,5 +149,5 @@ export const globalOutbound = {
       return new Response("Not allowed", { status: 403 });
     }
     return fetch(input, init);
-  },
-};
+  }
+}
